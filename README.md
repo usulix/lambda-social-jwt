@@ -23,9 +23,8 @@ a Lambda function to do that work.
 The goal of this repo is to provide that Lambda function
 
 ### Current development specifications
-+ a web component should be able to trigger OAuth sign in with a callback url and query string pointing to the resultant
-Lambda function and social auth provider ie https://api-id.execute-api.region.amazonaws.com/user/auth?twitter
-and get back a jason web token built from the app's users and roles tables in Dynamo DB.
++ a web component should be able to trigger OAuth sign in with a POST to the Lambda function containing a payload
+specifying the social provider and get back a jason web token built from the app's users and roles tables in Dynamo DB.
 + OAuth login flow initially for Twitter, Facebook, Google, and LinkedIn with more providers to be added
  
 ### Credits
