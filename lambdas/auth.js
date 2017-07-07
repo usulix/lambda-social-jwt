@@ -21,21 +21,22 @@ function errorResponse() {
     }
 }
 
-function handleTwitter(state) {
+function handleTwitter(event) {
     return new Promise(function(resolve, reject){
-        switch(state){
+        var authOptions = {
+            "eventType": "",
+            "twitterKey": config.twitterKey,
+            "twitterSecret": config.twitterSecret,
+            "callback": config.twitterCallback,
+            "token": "",
+            "tokenSecret": "",
+            "tokenVerifier": "",
+            "oauthToken": "",
+            "oauthTokenSecret": ""
+        }
+        switch(event.query.state){
             case "request_token":
-                var authOptions = {
-                    "eventType": "request_token",
-                    "twitterKey": config.twitterKey,
-                    "twitterSecret": config.twitterSecret,
-                    "callback": config.twitterCallback,
-                    token: '',
-                    tokenSecret: '',
-                    tokenVerifier: '',
-                    oauthToken: '',
-                    oauthTokenSecret: ''
-                }
+                authOptions.eventType = "request_token";
                 twitterProvider(authOptions)
                     .then(function fulfilled(resp) {
                         index = resp.request_token;
@@ -44,14 +45,45 @@ function handleTwitter(state) {
                             "request_token_secret": resp.request_token_secret,
                             "updated": Date.now() / 1000 | 0
                         }
-                        twitterRef.set(record);
-                        resolve({"provider":"twitter", "token":index});
+                        twitterRef.update(record);
+                        resolve({"provider":"twitter", "token":index, "location":"https://api.twitter.com/oauth/authenticate?oauth_token="+index});
                     }, function rejected(error) {
                         reject(new Error('Promise was rejected. Result: ' + error));
                     });
                 break;
+            case "access_token":
+                twitterRef.child(event.query.oauth_token).once('value').then(function (snap) {
+                    authOptions.eventType = "access_token";
+                    authOptions.token = event.query.oauth_token;
+                    authOptions.tokenSecret = snap.val().request_token_secret;
+                    authOptions.tokenVerifier = event.query.oauth_verifier;
+                    twitterProvider(authOptions)
+                        .then(function fulfilled(accessresult) {
+                            authOptions.eventType = "user_verify";
+                            authOptions.oauthToken = accessresult.access_token;
+                            authOptions.oauthTokenSecret = accessresult.access_token_secret;
+                            twitterProvider(authOptions)
+                                .then(function fulfilled(detailsresult){
+                                    detailsresult = JSON.parse(detailsresult);
+                                    var additionalrecord = {};
+                                    additionalrecord[event.query.oauth_token] = {
+                                        "access_token":accessresult.access_token,
+                                        "access_token_secret": accessresult.access_token_secret,
+                                        "userEmail": detailsresult.email,
+                                        "userName": detailsresult.name,
+                                        "userLocation": detailsresult.location,
+                                        "updated": Date.now() / 1000 | 0
+                                    }
+                                    twitterRef.update(additionalrecord);
+                                    resolve({"provider":"twitter", "token":event.query.oauth_token});
+                                })
+                        }, function rejected(error) {
+                            reject(new Error('Promise was rejected. Result: ' + error));
+                        })
+                });
+                break;
             default:
-                reject(new Error('no '+state));
+                reject(new Error('no '+event.query.state));
         }
     });
 }
@@ -78,7 +110,7 @@ export function handle(event: Event, context: any): void {
 
     switch(event.query.provider){
         case "twitter":
-            handleTwitter(event.query.state).then(function fulfilled(result){
+            handleTwitter(event).then(function fulfilled(result){
                 context.succeed(result);
             }, function rejected(error){
                 context.fail(error);

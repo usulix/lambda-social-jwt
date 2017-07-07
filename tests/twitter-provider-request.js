@@ -40,7 +40,7 @@ describe('twitterProviderGetRequestToken', function () {
             .then(function fulfilled(result) {
                 throw new Error('Promise was unexpectedly fulfilled. Result: ' + result);
             }, function rejected(error) {
-                assert.equal('eventType not recognized ( request_token, auth_token, or user_verify )', error.message);
+                assert.equal('eventType not recognized ( request_token, access_token, or user_verify )', error.message);
             })
             .then(() => done(), done);
     });
@@ -50,7 +50,7 @@ describe('twitterProviderGetRequestToken', function () {
             "eventType": "request_token",
             "twitterKey": config.twitterKey,
             "twitterSecret": "string",
-            "callback": "http://localhost/callback"
+            "callback": config.twitterCallback
         }
         twitterProvider(authOptions)
             .then(function fulfilled(result) {
@@ -66,7 +66,7 @@ describe('twitterProviderGetRequestToken', function () {
             "eventType": "request_token",
             "twitterKey": config.twitterKey,
             "twitterSecret": config.twitterSecret,
-            "callback": "http://localhost/callback"
+            "callback": config.twitterCallback
         }
         twitterProvider(authOptions)
             .then(function fulfilled(result) {
@@ -78,7 +78,7 @@ describe('twitterProviderGetRequestToken', function () {
                     "request_token_secret": result.request_token_secret,
                     "updated": Date.now() / 1000 | 0
                 }
-                twitterRef.set(record);
+                twitterRef.update(record);
             }, function rejected(error) {
                 throw new Error('Promise was rejected. Result: ' + error);
             })
