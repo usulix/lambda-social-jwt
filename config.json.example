@@ -1,4 +1,9 @@
 {
   "twitterKey":"copyThisFileToConfigDotJson",
-  "twitterSecret":"andAfterCopyAddYourRealKeysAndSecrets"
+  "twitterSecret":"andAfterCopyAddYourRealKeysAndSecrets",
+  "firebaseProject":"<PROJECT_ID>",
+  "firebaseEmail":"foo@<PROJECT_ID>.iam.gserviceaccount.com",
+  "firebaseKey":"-----BEGIN PRIVATE KEY-----\n<KEY>\n-----END PRIVATE KEY-----\n",
+  "firebaseUrl":"https://<DATABASE_NAME>.firebaseio.com",
+  "twitterCallback":"https://<id>.execute-api.<region>.amazonaws.com/<deploy>/auth?provider=twitter&stage=access_token"
 }

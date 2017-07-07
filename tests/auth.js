@@ -4,13 +4,13 @@
 import assert from "assert";
 
 import {lambdaPromisifier} from "../lib/lambda-promisifier.js"
-import {auth} from "../lambdas/auth.js"
+import {handle} from "../lambdas/auth.js"
 
-const promisifiedAuth = lambdaPromisifier(auth);
+const promisifiedAuth = lambdaPromisifier(handle);
 
 describe("auth lambda", function () {
     it("should set provider from options", function (done) {
-        promisifiedAuth({"provider": "twitter"})
+        promisifiedAuth({"query":{"provider": "twitter", "state":"request_token"}})
             .then(res => {
                 var r = JSON.parse(res)
                 assert.equal(r.provider, "twitter")

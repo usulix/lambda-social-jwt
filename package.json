@@ -23,6 +23,8 @@
     "webpack": "^3.0.0"
   },
   "dependencies": {
-    "oauth": "^0.9.15"
+    "firebase-admin": "^5.0.0",
+    "oauth": "^0.9.15",
+    "request": "^2.81.0"
   }
 }
