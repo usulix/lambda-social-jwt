@@ -4,15 +4,13 @@
 import assert from "assert";
 import {twitterProvider} from "../lib/twitter-provider.js";
 import * as fbadmin from "firebase-admin";
+import * as config from "../config.json"
 
 var fs = require('fs');
-var config, db, socialRef, twitterRef, index;
+var db, socialRef, twitterRef, index;
 
 describe('twitterProviderGetRequestToken', function () {
     before(function (done) {
-        var configJSON;
-        configJSON = fs.readFileSync('config.json', {encoding: 'utf-8'});
-        config = JSON.parse(configJSON);
         if (!config.firebaseKey) throw new Error('No firebaseKey in config');
         var fbConfig = {
             credential: fbadmin.credential.cert({

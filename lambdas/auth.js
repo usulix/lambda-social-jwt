@@ -21,36 +21,39 @@ function errorResponse() {
     }
 }
 
-function handleTwitter(state, context) {
-    switch(state){
-        case "request_token":
-            var authOptions = {
-                "eventType": "request_token",
-                "twitterKey": config.twitterKey,
-                "twitterSecret": config.twitterSecret,
-                "callback": config.twitterCallback,
-                token: '',
-                tokenSecret: '',
-                tokenVerifier: '',
-                oauthToken: '',
-                oauthTokenSecret: ''
-            }
-            twitterProvider(authOptions)
-                .then(function fulfilled(resp) {
-                    index = resp.request_token;
-                    var record = {};
-                    record[index] = {
-                        "request_token_secret": resp.request_token_secret,
-                        "updated": Date.now() / 1000 | 0
-                    }
-                    twitterRef.set(record);
-                }, function rejected(error) {
-                    throw new Error('Promise was rejected. Result: ' + error);
-                })
-            break;
-        default:
-            context.fail(errorResponse());
-    }
+function handleTwitter(state) {
+    return new Promise(function(resolve, reject){
+        switch(state){
+            case "request_token":
+                var authOptions = {
+                    "eventType": "request_token",
+                    "twitterKey": config.twitterKey,
+                    "twitterSecret": config.twitterSecret,
+                    "callback": config.twitterCallback,
+                    token: '',
+                    tokenSecret: '',
+                    tokenVerifier: '',
+                    oauthToken: '',
+                    oauthTokenSecret: ''
+                }
+                twitterProvider(authOptions)
+                    .then(function fulfilled(resp) {
+                        index = resp.request_token;
+                        var record = {};
+                        record[index] = {
+                            "request_token_secret": resp.request_token_secret,
+                            "updated": Date.now() / 1000 | 0
+                        }
+                        twitterRef.set(record);
+                        resolve({"provider":"twitter", "token":index});
+                    }, function rejected(error) {
+                        reject(new Error('Promise was rejected. Result: ' + error));
+                    });
+                break;
+            default:
+                reject(new Error('no '+state));
+        }
+    });
 }
 
 export function handle(event: Event, context: any): void {
@@ -75,11 +78,13 @@ export function handle(event: Event, context: any): void {
 
     switch(event.query.provider){
         case "twitter":
-            handleTwitter(event.query.state, context);
+            handleTwitter(event.query.state).then(function fulfilled(result){
+                context.succeed(result);
+            }, function rejected(error){
+                context.fail(error);
+            });
             break;
         default:
             context.fail(errorResponse());
     }
-
-    context.succeed(`{"provider": "${event.query.provider}"}`);
 }

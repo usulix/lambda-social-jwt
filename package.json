@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack --watch",
     "build": "webpack",
-    "test": "mocha --compilers js:babel-core/register --recursive tests/"
+    "test": "mocha --compilers js:babel-core/register --timeout 2500 --recursive tests/"
   },
   "repository": "https://github.com/usulix/lambda-social-jwt.git",
   "author": "Gregory Gray <usulix@yahoo.com>",
