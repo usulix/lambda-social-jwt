@@ -1,16 +1,24 @@
 
-import * as fbadmin from "firebase-admin"
 import {twitterProvider} from "../lib/twitter-provider"
+import {dbProvider} from "../lib/db-provider"
 import * as config from "../config.json"
 
-var index, db, socialRef, twitterRef;
+type Db = {
+    twitterRef:{
+        update:(any)=>void,
+        find: Promise<any>
+    }
+};
 
 type Event = {
     query: {
         provider: string,
-        state: string
+        state: string,
+        oauth_token: string
     }
 };
+
+var index, db: Db;
 
 function errorResponse() {
     return {
@@ -45,17 +53,17 @@ function handleTwitter(event) {
                             "request_token_secret": resp.request_token_secret,
                             "updated": Date.now() / 1000 | 0
                         }
-                        twitterRef.update(record);
+                        db.twitterRef.update(record);
                         resolve({"provider":"twitter", "token":index, "location":"https://api.twitter.com/oauth/authenticate?oauth_token="+index});
                     }, function rejected(error) {
                         reject(new Error('Promise was rejected. Result: ' + error));
                     });
                 break;
             case "access_token":
-                twitterRef.child(event.query.oauth_token).once('value').then(function (snap) {
+                db.twitterRef.find(event.query.oauth_token).then(function(res){
                     authOptions.eventType = "access_token";
                     authOptions.token = event.query.oauth_token;
-                    authOptions.tokenSecret = snap.val().request_token_secret;
+                    authOptions.tokenSecret = res.val().request_token_secret;
                     authOptions.tokenVerifier = event.query.oauth_verifier;
                     twitterProvider(authOptions)
                         .then(function fulfilled(accessresult) {
@@ -74,7 +82,7 @@ function handleTwitter(event) {
                                         "userLocation": detailsresult.location,
                                         "updated": Date.now() / 1000 | 0
                                     }
-                                    twitterRef.update(additionalrecord);
+                                    db.twitterRef.update(additionalrecord);
                                     resolve({"provider":"twitter", "token":event.query.oauth_token});
                                 })
                         }, function rejected(error) {
@@ -89,24 +97,14 @@ function handleTwitter(event) {
 }
 
 export function handle(event: Event, context: any): void {
-    if (!config.firebaseKey) return context.fail(new Error('No firebaseKey in config'));
+    try{
+       db = dbProvider();
+    } catch(err){
+        context.fail(new Error("Could not access database : "+err));
+    }
     if (!event.hasOwnProperty('query') || !event.query.hasOwnProperty('provider') || !event.query.provider){
         return context.fail(new Error('No provider specified in event object'));
     }
-    var fbConfig = {
-        credential: fbadmin.credential.cert({
-            projectId: config.firebaseProject,
-            clientEmail: config.firebaseEmail,
-            privateKey: config.firebaseKey
-        }),
-        databaseURL: config.firebaseUrl
-    };
-    if (fbadmin.apps.length === 0) {
-        fbadmin.initializeApp(fbConfig);
-    }
-    db = fbadmin.database();
-    socialRef = db.ref("social/");
-    twitterRef = socialRef.child('twitter');
 
     switch(event.query.provider){
         case "twitter":

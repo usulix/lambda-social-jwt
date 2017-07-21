@@ -24,8 +24,19 @@ The goal of this repo is to provide that Lambda function
 
 ### Current development specifications
 + a web component should be able to trigger OAuth sign in with a POST to the Lambda function containing a payload
-specifying the social provider and get back a jason web token built from the app's users and roles tables in Dynamo DB.
+specifying the social provider and get back a jason web token built from the app's users and roles tables in 
+<s>Dynamo DB</s> Firebase.
 + OAuth login flow initially for Twitter, Facebook, Google, and LinkedIn with more providers to be added
+
+### Notes
++ Originally my intention was to use Dynamo DB for storing user information, but as firebase provides a user friendly
+web interface and the node_module worked easily, I went with the simpler solution.
+
+### Future good intentions
++ <s>Move the database interactions into a provider to allow easily switching storage services.</s>
+
+### Changelog
++ 2017-07-15 moved database interactions into provider to prepare for extending providers 
  
 ### Credits
 + project basic structure borrows heavily from <https://github.com/rricard/lambda-es6-example> 

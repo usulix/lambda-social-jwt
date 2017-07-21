@@ -30,14 +30,16 @@ describe("auth lambda", function () {
                     var now = Date.now() / 1000 | 0;
                     assert.equal(true, snap.val().updated > (now - 10));
                     assert.equal(true, snap.val().updated < (now + 10));
+                }, function(err){
+                    console.log('promise rejected');
                 });
             })
             .then(() => done(), done);
     });
 
-    xit("should handle twitter access_token", function (done) {
+    it("should handle twitter access_token", function (done) {
         promisifiedAuth({"query":{"provider": "twitter", "state":"access_token",
-            "oauth_token":"grabATokenFromFirebase", "oauth_verifier":"visitTwitterLoginandPasteVerifier"}})
+            "oauth_token":"fzZ0XQAAAAAA1V6kAAABXWYyQXg", "oauth_verifier":"fuJXQR7W8YoQI6NJ7gaN1iPB7AkEaWEB"}})
             .then(res => {
                 assert.equal(res.provider, "twitter");
                 var fbConfig = {

@@ -1,6 +1,7 @@
 {
   "twitterKey":"copyThisFileToConfigDotJson",
   "twitterSecret":"andAfterCopyAddYourRealKeysAndSecrets",
+  "databaseProvider":"firebase",
   "firebaseProject":"<PROJECT_ID>",
   "firebaseEmail":"foo@<PROJECT_ID>.iam.gserviceaccount.com",
   "firebaseKey":"-----BEGIN PRIVATE KEY-----\n<KEY>\n-----END PRIVATE KEY-----\n",
