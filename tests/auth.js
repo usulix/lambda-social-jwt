@@ -34,7 +34,7 @@ describe("auth lambda", function () {
                     throw new Error('promise rejected');
                 });
             })
-            .then(() => done(), done);
+            .then(() => done(), () => done());
     });
 
     xit("should handle twitter access_token", function (done) {
@@ -60,7 +60,7 @@ describe("auth lambda", function () {
                     assert.equal(true, snap.val().updated < (now + 10));
                 });
             }, err=>{console.log(err);})
-            .then(() => done(), done);
+            .then(() => done(), () => done());
     });
 
     it("should exchange facebook code for access token", function(done){
@@ -69,7 +69,7 @@ describe("auth lambda", function () {
             .then(res => {
                 assert.equal(res.provider, "facebook");
             }, err=>{console.log(err); throw new Error('facebook connection error')})
-            .then(() => done(), done);
+            .then(() => done(), () => done());
     });
 
     it("should fail if no provider in options", function (done) {
@@ -79,6 +79,6 @@ describe("auth lambda", function () {
             }, function rejected(error) {
                 assert.equal('No provider specified in event object', error.message);
             })
-            .then(() => done(), done);
+            .then(() => done(), () => done());
     });
 });

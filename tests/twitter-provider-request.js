@@ -11,7 +11,9 @@ var db, socialRef, twitterRef, index;
 
 describe('twitterProviderGetRequestToken', function () {
     before(function (done) {
-        if (!config.firebaseKey) throw new Error('No firebaseKey in config');
+        if (!config.firebaseKey){
+            throw new Error('No firebaseKey in config');
+        }
         var fbConfig = {
             credential: fbadmin.credential.cert({
                 projectId: config.firebaseProject,
