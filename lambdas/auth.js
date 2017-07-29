@@ -1,4 +1,6 @@
-
+/* @flow */
+import type {Event} from "../lib/flowTypes.js";
+import type {Db} from "../lib/flowTypes.js";
 import {handleTwitter} from "../lib/twitter-handler"
 import {twitterProvider} from "../lib/twitter-provider"
 import {dbProvider} from "../lib/db-provider"
@@ -6,22 +8,7 @@ import * as config from "../config.json"
 import {handleFacebook} from "../lib/facebook-handler"
 import {facebookProvider} from "../lib/facebook-provider"
 
-type Db = {
-    twitterRef:{
-        update:(any)=>void,
-        find: Promise<any>
-    }
-};
-
-type Event = {
-    query: {
-        provider: string,
-        state: string,
-        oauth_token: string
-    }
-};
-
-var db: Db;
+let db: Db;
 
 function errorResponse() {
     return {
